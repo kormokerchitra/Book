@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/profile_page"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginLeft="30dp"
+    android:layout_marginRight="30dp"
+    android:background="#ffffff"
+    android:gravity="center|top"
+    android:orientation="vertical">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:overScrollMode="never"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Basic information"
+                android:textColor="#757677"
+                android:textSize="14dp"
+                android:layout_marginTop="30dp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="Full name"
+                android:textColor="@color/colorPrimary"
+                android:textSize="12dp"
+                android:textStyle="normal" />
+
+            <EditText
+                android:id="@+id/fullname_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/edittext_back"
+                android:hint="Full name"
+                android:padding="15dp"
+                android:text="Demo User"
+                android:textSize="12dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="Username"
+                android:textColor="@color/colorPrimary"
+                android:textSize="12dp"
+                android:textStyle="normal" />
+
+            <EditText
+                android:id="@+id/username_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/edittext_back"
+                android:hint="Username"
+                android:padding="15dp"
+                android:text="demo123"
+                android:textSize="12dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="Email"
+                android:textColor="@color/colorPrimary"
+                android:textSize="12dp"
+                android:textStyle="normal" />
+
+            <EditText
+                android:id="@+id/email_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/edittext_back"
+                android:hint="Email"
+                android:padding="15dp"
+                android:text="demo@mail.com"
+                android:textSize="12dp" />
+
+            <TextView
+                android:id="@+id/edit_basic"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:background="@drawable/page_button_back"
+                android:gravity="center"
+                android:padding="10dp"
+                android:text="Edit"
+                android:textColor="#ffffff" />
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="40dp"
+                android:text="Change password"
+                android:textColor="#757677"
+                android:textSize="14dp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="Email"
+                android:textColor="@color/colorPrimary"
+                android:textSize="12dp"
+                android:textStyle="normal" />
+
+            <EditText
+                android:id="@+id/email_pass"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/edittext_back"
+                android:hint="Enter your email"
+                android:padding="15dp"
+                android:textSize="12dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="New password"
+                android:textColor="@color/colorPrimary"
+                android:textSize="12dp"
+                android:textStyle="normal" />
+
+            <EditText
+                android:id="@+id/password_pass"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/edittext_back"
+                android:hint="Enter new password"
+                android:inputType="textPassword"
+                android:padding="15dp"
+                android:textSize="12dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="Confirm password"
+                android:textColor="@color/colorPrimary"
+                android:textSize="12dp"
+                android:textStyle="normal" />
+
+            <EditText
+                android:id="@+id/con_password_pass"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/edittext_back"
+                android:hint="Re-enter Password"
+                android:inputType="textPassword"
+                android:padding="15dp"
+                android:textSize="12dp" />
+
+            <TextView
+                android:id="@+id/edit_pass"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:layout_marginBottom="20dp"
+                android:background="@drawable/page_button_back"
+                android:gravity="center"
+                android:padding="10dp"
+                android:text="Change"
+                android:textColor="#ffffff" />
+
+        </LinearLayout>
+    </ScrollView>
+</RelativeLayout>
