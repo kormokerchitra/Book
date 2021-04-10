@@ -84,6 +84,7 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 new ReadJSON().execute("http://192.168.100.6/bookTest/category_list.php");
                 new ReadJSONGeetobitanList().execute("http://192.168.100.6/bookTest/song_list.php");
+                new ReadJSONSwarabitanList().execute("http://192.168.100.6/bookTest/song_list.php");
             }
         });
 
@@ -273,38 +274,21 @@ public class MainActivity extends AppCompatActivity {
         geetobitan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                swarabitan.setBackgroundResource(R.drawable.button_back_right_inactive);
-                swarabitan.setTextColor(Color.parseColor("#757677"));
-                geetobitan.setBackgroundResource(R.drawable.button_back_left_active);
-                geetobitan.setTextColor(Color.parseColor("#159EFF"));
+
                 songCat = "1";
-                geetobitan_list.setVisibility(View.VISIBLE);
-                swarabitan_list.setVisibility(View.GONE);
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        new ReadJSONGeetobitanList().execute("http://192.168.100.6/bookTest/song_list.php");
-                    }
-                });
+                Intent intent = new Intent(getBaseContext(), Geetobitan.class);
+                intent.putExtra("songCat", songCat);
+                startActivity(intent);
             }
         });
 
         swarabitan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                geetobitan.setBackgroundResource(R.drawable.button_back_left_inactive);
-                geetobitan.setTextColor(Color.parseColor("#757677"));
-                swarabitan.setBackgroundResource(R.drawable.button_back_right_active);
-                swarabitan.setTextColor(Color.parseColor("#159EFF"));
                 songCat = "2";
-                swarabitan_list.setVisibility(View.VISIBLE);
-                geetobitan_list.setVisibility(View.GONE);
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        new ReadJSONSwarabitanList().execute("http://192.168.100.6/bookTest/song_list.php");
-                    }
-                });
+                Intent intent = new Intent(getBaseContext(), Geetobitan.class);
+                intent.putExtra("songCat", songCat);
+                startActivity(intent);
             }
         });
     }
@@ -407,7 +391,7 @@ public class MainActivity extends AppCompatActivity {
                     if (songCat.equals(productObject.getString("song_category"))) {
                         songList1 = new ArrayList<String>(Arrays.asList(swarabitanList));
                         songList1.add(productObject.getString("book"));
-                        swarabitanList = songList.toArray(swarabitanList);
+                        swarabitanList = songList1.toArray(swarabitanList);
                     }
                 }
 

@@ -24,6 +24,8 @@
 
         <activity android:name=".MainActivity"/>
         <activity android:name=".CategoryBooksPage"/>
+        <activity android:name=".Geetobitan"/>
+        <activity android:name=".Swarabitan"/>
     </application>
 
 </manifest>
