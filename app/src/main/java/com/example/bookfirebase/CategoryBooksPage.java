@@ -61,7 +61,7 @@ public class CategoryBooksPage extends AppCompatActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                new ReadJSON().execute("http://192.168.100.6/bookTest/book_list.php");
+                new ReadJSON().execute("http://192.168.100.5/bookTest/book_list.php");
             }
         });
 
@@ -116,7 +116,10 @@ public class CategoryBooksPage extends AppCompatActivity {
             category_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    Toast.makeText(CategoryBooksPage.this, adapter.getItem(i).toString(), Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(CategoryBooksPage.this, adapter.getItem(i).toString(), Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(getBaseContext(), BookDetails.class);
+                    intent.putExtra("name", adapter.getItem(i).toString());
+                    startActivity(intent);
                 }
             });
         }

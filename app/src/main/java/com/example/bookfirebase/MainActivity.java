@@ -1,12 +1,16 @@
 package com.example.bookfirebase;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.os.StrictMode;
+import android.util.Log;
 import android.view.View;
 
 import android.widget.AdapterView;
@@ -19,24 +23,46 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
     int c = 0;
-    String songCat = "1";
+    String songCat = "1", id = "";
     private String JSON_STRING;
     ListView category_list;
+    boolean loggedIn;
 
     String swarabitanList[] = {};
     String geetobitanList[] = {};
@@ -50,14 +76,20 @@ public class MainActivity extends AppCompatActivity {
     EditText email;
     EditText password;
     EditText con_password;
+    EditText fullname_view, username_view, email_view;
     TextView sample_text;
-    TextView sign_up;
+    TextView sign_up, edit_basic;
     ArrayList<CategoryModel> arrayList;
+    LinearLayout user_menu, profile_menu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+
         final TextView title1 = (TextView) findViewById(R.id.title1);
         final TextView title2 = (TextView) findViewById(R.id.title2);
 
@@ -66,6 +98,10 @@ public class MainActivity extends AppCompatActivity {
         final ImageView profile_icon = (ImageView) findViewById(R.id.profile_icon);
         final ImageView notation_icon = (ImageView) findViewById(R.id.notation_icon);
         final ImageView about_icon = (ImageView) findViewById(R.id.about_icon);
+
+        fullname_view = (EditText) findViewById(R.id.fullname_view);
+        username_view = (EditText) findViewById(R.id.username_view);
+        email_view = (EditText) findViewById(R.id.email_view);
 
         final RelativeLayout category_page = (RelativeLayout) findViewById(R.id.category_page);
         category_page.setVisibility(View.VISIBLE);
@@ -82,17 +118,17 @@ public class MainActivity extends AppCompatActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                new ReadJSON().execute("http://192.168.100.6/bookTest/category_list.php");
-                new ReadJSONGeetobitanList().execute("http://192.168.100.6/bookTest/song_list.php");
-                new ReadJSONSwarabitanList().execute("http://192.168.100.6/bookTest/song_list.php");
+                new ReadJSON().execute("http://192.168.100.5/bookTest/category_list.php");
+                new ReadJSONGeetobitanList().execute("http://192.168.100.5/bookTest/song_list.php");
+                new ReadJSONSwarabitanList().execute("http://192.168.100.5/bookTest/song_list.php");
             }
         });
 
         final LinearLayout menu_id = (LinearLayout) findViewById(R.id.menu_id);
         menu_id.setVisibility(View.GONE);
         final LinearLayout category_menu = (LinearLayout) findViewById(R.id.category_menu);
-        final LinearLayout user_menu = (LinearLayout) findViewById(R.id.user_menu);
-        final LinearLayout profile_menu = (LinearLayout) findViewById(R.id.profile_menu);
+        user_menu = (LinearLayout) findViewById(R.id.user_menu);
+        profile_menu = (LinearLayout) findViewById(R.id.profile_menu);
         final LinearLayout notation_menu = (LinearLayout) findViewById(R.id.notation_menu);
         final LinearLayout about_menu = (LinearLayout) findViewById(R.id.about_menu);
         category_menu.setOnClickListener(new View.OnClickListener() {
@@ -161,6 +197,64 @@ public class MainActivity extends AppCompatActivity {
                 profile_page.setVisibility(View.VISIBLE);
                 notation_page.setVisibility(View.GONE);
                 about_page.setVisibility(View.GONE);
+
+                SharedPreferences sharedPreferences = getBaseContext().getSharedPreferences("shared_pref", Context.MODE_PRIVATE);
+
+                final String email_user = sharedPreferences.getString("loggedin_data", "");
+
+                StringRequest stringRequest = new StringRequest(Request.Method.POST, "http://192.168.100.5/bookTest/profile.php",
+                        new Response.Listener<String>() {
+
+                            @Override
+                            public void onResponse(String response) {
+                                String res = response.toString();
+                                //Creating a shared preference
+                                if (res.contains("list")) {
+                                    JSONObject jsonObject = null;
+                                    try {
+                                        jsonObject = new JSONObject(res);
+                                        JSONArray jsonArray = jsonObject.getJSONArray("list");
+                                        for (int i = 0; i < jsonArray.length(); i++) {
+                                            JSONObject productObject = jsonArray.getJSONObject(i);
+
+                                            id = productObject.getString("id");
+                                            String fn = productObject.getString("fullname");
+                                            String un = productObject.getString("username");
+                                            String email = productObject.getString("email");
+
+                                            fullname_view.setText(fn);
+                                            username_view.setText(un);
+                                            email_view.setText(email);
+                                        }
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                } else {
+                                    Toast.makeText(MainActivity.this, "Failed to get user!", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        },
+                        new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                //You can handle error here if you want
+                            }
+                        }) {
+
+                    @Override
+                    protected Map<String, String> getParams() throws AuthFailureError {
+                        Map<String, String> params = new HashMap<>();
+                        //Adding parameters to request
+                        params.put("email", email_user);
+
+                        //returning parameter
+                        return params;
+                    }
+                };
+
+                //Adding the string request to the queue
+                RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
+                requestQueue.add(stringRequest);
             }
         });
 
@@ -229,6 +323,109 @@ public class MainActivity extends AppCompatActivity {
 
         category_list = (ListView) findViewById(R.id.list_category);
 
+        /// Profile section
+
+
+        edit_basic = (TextView) findViewById(R.id.edit_basic);
+        edit_basic.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String un = username_view.getText().toString();
+                String fn = fullname_view.getText().toString();
+                String em = email_view.getText().toString();
+                InputStream is = null;
+                ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+                nameValuePairs.add(new BasicNameValuePair("id", id));
+                nameValuePairs.add(new BasicNameValuePair("username", un));
+                nameValuePairs.add(new BasicNameValuePair("fullname", fn));
+                nameValuePairs.add(new BasicNameValuePair("email", em));
+
+                try {
+                    HttpClient httpClient = new DefaultHttpClient();
+                    HttpPost httpPost = new HttpPost("http://192.168.100.5/bookTest/profile_edit.php");
+                    //httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+                    httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+                    HttpResponse response = httpClient.execute(httpPost);
+                    HttpEntity entity = response.getEntity();
+                    is = entity.getContent();
+                    String msg = "Edited Successfully";
+                    Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
+
+                } catch (ClientProtocolException e) {
+                    Log.e("ClientProtocol", "Log_tag");
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    Log.e("Log_tag", "IOException");
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        final EditText new_pass = (EditText) findViewById(R.id.password_pass);
+        final EditText con_pass = (EditText) findViewById(R.id.con_password_pass);
+
+        TextView change_pass = (TextView) findViewById(R.id.edit_pass);
+        change_pass.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String pass = new_pass.getText().toString();
+                String cpass = con_pass.getText().toString();
+                if (!pass.equals(cpass)) {
+                    Toast.makeText(MainActivity.this, "Password don't match!", Toast.LENGTH_SHORT).show();
+                } else {
+                    InputStream is = null;
+                    ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+                    nameValuePairs.add(new BasicNameValuePair("id", id));
+                    nameValuePairs.add(new BasicNameValuePair("password", pass));
+
+                    try {
+                        HttpClient httpClient = new DefaultHttpClient();
+                        HttpPost httpPost = new HttpPost("http://192.168.100.5/bookTest/pass_change.php");
+                        //httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+                        httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+                        HttpResponse response = httpClient.execute(httpPost);
+                        HttpEntity entity = response.getEntity();
+                        is = entity.getContent();
+                        String msg = "Password Edited Successfully";
+                        Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
+                        new_pass.setText("");
+                        con_pass.setText("");
+
+                    } catch (ClientProtocolException e) {
+                        Log.e("ClientProtocol", "Log_tag");
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        Log.e("Log_tag", "IOException");
+                        e.printStackTrace();
+                    }
+                }
+
+            }
+        });
+
+        TextView sign_out = (TextView) findViewById(R.id.sign_out);
+        sign_out.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SharedPreferences preferences = getSharedPreferences("shared_pref", Context.MODE_PRIVATE);
+                //Getting editor
+                SharedPreferences.Editor editor = preferences.edit();
+
+                //Puting the value false for loggedin
+                editor.putBoolean("isLoggedin", false);
+
+                //Putting blank value to email
+                editor.putString("loggedin_data", "");
+
+                //Saving the sharedpreferences
+                editor.commit();
+
+                finish();
+                Intent intent = new Intent(getBaseContext(), SplashScreen.class);
+                startActivity(intent);
+            }
+        });
+
         /// User verification
 
         login = (TextView) findViewById(R.id.login);
@@ -266,6 +463,120 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        TextView submit = (TextView) findViewById(R.id.submit_user);
+        submit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (username.getVisibility() == View.VISIBLE) {
+                    String un = username.getText().toString();
+                    String fn = fullname.getText().toString();
+                    String em = email.getText().toString();
+                    String pass = password.getText().toString();
+                    String con_pass = con_password.getText().toString();
+
+                    if (un.equals("")) {
+                        Toast.makeText(MainActivity.this, "Username field is blank!", Toast.LENGTH_SHORT).show();
+                    } else if (fn.equals("")) {
+                        Toast.makeText(MainActivity.this, "Full name field is blank!", Toast.LENGTH_SHORT).show();
+                    } else if (em.equals("")) {
+                        Toast.makeText(MainActivity.this, "Email field is blank!", Toast.LENGTH_SHORT).show();
+                    } else if (pass.equals("")) {
+                        Toast.makeText(MainActivity.this, "Password field is blank!", Toast.LENGTH_SHORT).show();
+                    } else if (con_pass.equals("")) {
+                        Toast.makeText(MainActivity.this, "Confirm password field is blank!", Toast.LENGTH_SHORT).show();
+                    } else if (!pass.equals(con_pass)) {
+                        Toast.makeText(MainActivity.this, "Password not match!", Toast.LENGTH_SHORT).show();
+                    } else {
+                        InputStream is = null;
+                        ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+                        nameValuePairs.add(new BasicNameValuePair("username", un));
+                        nameValuePairs.add(new BasicNameValuePair("fullname", fn));
+                        nameValuePairs.add(new BasicNameValuePair("email", em));
+                        nameValuePairs.add(new BasicNameValuePair("password", pass));
+
+                        try {
+                            HttpClient httpClient = new DefaultHttpClient();
+                            HttpPost httpPost = new HttpPost("http://192.168.100.5/bookTest/sign_up.php");
+                            //httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+                            httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+                            HttpResponse response = httpClient.execute(httpPost);
+                            HttpEntity entity = response.getEntity();
+                            is = entity.getContent();
+                            String msg = "Registered Successfully";
+                            Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
+
+                        } catch (ClientProtocolException e) {
+                            Log.e("ClientProtocol", "Log_tag");
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            Log.e("Log_tag", "IOException");
+                            e.printStackTrace();
+                        }
+                    }
+                } else {
+                    final String em = email.getText().toString();
+                    final String pass = password.getText().toString();
+                    if (em.equals("")) {
+                        Toast.makeText(MainActivity.this, "Email field is blank!", Toast.LENGTH_SHORT).show();
+                    } else if (pass.equals("")) {
+                        Toast.makeText(MainActivity.this, "Password field is blank!", Toast.LENGTH_SHORT).show();
+                    } else {
+                        StringRequest stringRequest = new StringRequest(Request.Method.POST, "http://192.168.100.5/bookTest/login.php",
+                                new Response.Listener<String>() {
+
+                                    @Override
+                                    public void onResponse(String response) {
+                                        String res = response.toString();
+                                        //Creating a shared preference
+                                        if (res.equals("success")) {
+                                            SharedPreferences sharedPreferences = getBaseContext().getSharedPreferences("shared_pref", Context.MODE_PRIVATE);
+
+                                            //Creating editor to store values to shared preferences
+                                            SharedPreferences.Editor editor = sharedPreferences.edit();
+
+                                            //Adding values to editor
+                                            editor.putBoolean("isLoggedin", true);
+                                            editor.putString("loggedin_data", em);
+                                            //editor.putString(Config.NAME_SHARED_PREF, email);
+
+                                            //Saving values to editor
+                                            editor.commit();
+                                            finish();
+                                            Intent intent = new Intent(getBaseContext(), MainActivity.class);
+                                            startActivity(intent);
+                                        } else {
+                                            Toast.makeText(MainActivity.this, "Failed to login!", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                },
+                                new Response.ErrorListener() {
+                                    @Override
+                                    public void onErrorResponse(VolleyError error) {
+                                        //You can handle error here if you want
+                                    }
+                                }) {
+
+                            @Override
+                            protected Map<String, String> getParams() throws AuthFailureError {
+                                Map<String, String> params = new HashMap<>();
+                                //Adding parameters to request
+                                params.put("email", em);
+                                params.put("password", pass);
+
+                                //returning parameter
+                                return params;
+                            }
+                        };
+
+                        //Adding the string request to the queue
+                        RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
+                        requestQueue.add(stringRequest);
+                    }
+                }
+
+            }
+        });
+
 
         /// Notation section
 
@@ -286,7 +597,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 songCat = "2";
-                Intent intent = new Intent(getBaseContext(), Geetobitan.class);
+                Intent intent = new Intent(getBaseContext(), Swarabitan.class);
                 intent.putExtra("songCat", songCat);
                 startActivity(intent);
             }
@@ -472,5 +783,26 @@ public class MainActivity extends AppCompatActivity {
         con_password.clearFocus();
         sample_text.setText("Already have an account?");
         sign_up.setText("Sign in");
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        //In onresume fetching value from sharedpreference
+        SharedPreferences sharedPreferences = getBaseContext().getSharedPreferences("shared_pref", Context.MODE_PRIVATE);
+
+        //Fetching the boolean value form sharedpreferences
+        loggedIn = sharedPreferences.getBoolean("isLoggedin", false);
+        String email = sharedPreferences.getString("loggedin_data", "");
+
+        //If we will get true
+        if (loggedIn) {
+            //We will start the Profile Activity
+            user_menu.setVisibility(View.GONE);
+            profile_menu.setVisibility(View.VISIBLE);
+        } else {
+            user_menu.setVisibility(View.VISIBLE);
+            profile_menu.setVisibility(View.GONE);
+        }
     }
 }

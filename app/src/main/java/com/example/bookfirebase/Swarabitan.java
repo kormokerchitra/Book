@@ -1,10 +1,14 @@
 package com.example.bookfirebase;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -17,28 +21,31 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public class Swarabitan extends AppCompatActivity {
-    String geetobitanList[] = {};
-    ListView geetobitan_list;
-    List<String> songList;
-    ArrayAdapter adapter;
+    ArrayList<SongModel> arrayList;
+    ListView swarabitan_list;
     String songCat;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.geetobitan);
+        setContentView(R.layout.swarabitan);
 
         songCat = getIntent().getStringExtra("songCat");
 
-        geetobitan_list = (ListView) findViewById(R.id.list_swarabitan);
+        swarabitan_list = (ListView) findViewById(R.id.list_swarabitan);
 
         ImageView back = (ImageView) findViewById(R.id.back);
         back.setOnClickListener(new View.OnClickListener() {
@@ -48,15 +55,16 @@ public class Swarabitan extends AppCompatActivity {
             }
         });
 
+        arrayList = new ArrayList<>();
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                new ReadJSONGeetobitanList().execute("http://192.168.100.6/bookTest/song_list.php");
+                new ReadJSONSwarobitanList().execute("http://192.168.100.5/bookTest/song_list.php");
             }
         });
     }
 
-    class ReadJSONGeetobitanList extends AsyncTask<String, Integer, String> {
+    class ReadJSONSwarobitanList extends AsyncTask<String, Integer, String> {
 
         @Override
         protected String doInBackground(String... params) {
@@ -70,25 +78,80 @@ public class Swarabitan extends AppCompatActivity {
                 JSONArray jsonArray = jsonObject.getJSONArray("list");
                 for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject productObject = jsonArray.getJSONObject(i);
-
-                    if (songCat.equals(productObject.getString("song_category"))) {
-                        songList = new ArrayList<String>(Arrays.asList(geetobitanList));
-                        songList.add(productObject.getString("book"));
-                        geetobitanList = songList.toArray(geetobitanList);
+                    if (productObject.getString("song_category").equals(songCat)) {
+                        arrayList.add(new SongModel(
+                                productObject.getString("id"),
+                                productObject.getString("song_name"),
+                                productObject.getString("song_pdf"),
+                                productObject.getString("song_category")
+                        ));
                     }
                 }
 
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            adapter = new ArrayAdapter<String>(Swarabitan.this, R.layout.category_item, R.id.title, geetobitanList);
-            geetobitan_list.setAdapter(adapter);
-            geetobitan_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            SwarabitanAdapter adapter = new SwarabitanAdapter(
+                    getApplicationContext(), R.layout.song_item, arrayList
+            );
+            swarabitan_list.setAdapter(adapter);
+            swarabitan_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
-                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    Toast.makeText(Swarabitan.this, adapter.getItem(i).toString(), Toast.LENGTH_SHORT).show();
+                public void onItemClick(AdapterView<?> parent, View view, int i, long id) {
+                    final String link = arrayList.get(i).getSong_pdf();
+                    final String name = arrayList.get(i).getSong_name();
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(Swarabitan.this);
+
+                    builder.setMessage("Choose what you want to do...");
+                    builder.setTitle("Select Option");
+
+                    //This will not allow to close dialogbox until user selects an option
+                    builder.setCancelable(true);
+                    builder.setPositiveButton("View PDF", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(link));
+                            startActivity(browserIntent);
+                            dialog.cancel();
+                        }
+                    });
+                    builder.setNegativeButton("Download", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            new DownloadFile().execute(link, name + ".pdf");
+                            Toast.makeText(Swarabitan.this, "Download successful!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(Swarabitan.this, "Saved to - storage/world of book/", Toast.LENGTH_SHORT).show();
+                            dialog.cancel();
+                        }
+                    });
+
+                    //Creating dialog box
+                    AlertDialog alert = builder.create();
+                    //Setting the title manually
+                    //alert.setTitle("AlertDialogExample");
+                    alert.show();
                 }
             });
+        }
+    }
+
+    private class DownloadFile extends AsyncTask<String, Void, Void> {
+
+        @Override
+        protected Void doInBackground(String... strings) {
+            String fileUrl = strings[0];   // -> http://maven.apache.org/maven-1.x/maven.pdf
+            String fileName = strings[1];  // -> maven.pdf
+            String extStorageDirectory = Environment.getExternalStorageDirectory().toString();
+            File folder = new File(extStorageDirectory, "world of book");
+            folder.mkdir();
+
+            File pdfFile = new File(folder, fileName);
+
+            try {
+                pdfFile.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            FileDownloaderSwarabitan.downloadFile(fileUrl, pdfFile);
+            return null;
         }
     }
 
@@ -111,5 +174,37 @@ public class Swarabitan extends AppCompatActivity {
             e.printStackTrace();
         }
         return content.toString();
+    }
+}
+
+class FileDownloaderSwarabitan {
+    private static final int MEGABYTE = 1024 * 1024;
+
+    public static void downloadFile(String fileUrl, File directory) {
+        try {
+
+            URL url = new URL(fileUrl);
+            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+            //urlConnection.setRequestMethod("GET");
+            //urlConnection.setDoOutput(true);
+            urlConnection.connect();
+
+            InputStream inputStream = urlConnection.getInputStream();
+            FileOutputStream fileOutputStream = new FileOutputStream(directory);
+            int totalSize = urlConnection.getContentLength();
+
+            byte[] buffer = new byte[MEGABYTE];
+            int bufferLength = 0;
+            while ((bufferLength = inputStream.read(buffer)) > 0) {
+                fileOutputStream.write(buffer, 0, bufferLength);
+            }
+            fileOutputStream.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

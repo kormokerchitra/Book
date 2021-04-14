@@ -100,6 +100,16 @@
                 android:text="Edit"
                 android:textColor="#ffffff" />
 
+            <TextView
+                android:id="@+id/sign_out"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:background="@drawable/button_back_active"
+                android:gravity="center"
+                android:padding="10dp"
+                android:text="Sign out"
+                android:textColor="#159EFF" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -109,25 +119,6 @@
                 android:textColor="#757677"
                 android:textSize="14dp"
                 android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:text="Email"
-                android:textColor="@color/colorPrimary"
-                android:textSize="12dp"
-                android:textStyle="normal" />
-
-            <EditText
-                android:id="@+id/email_pass"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:background="@drawable/edittext_back"
-                android:hint="Enter your email"
-                android:padding="15dp"
-                android:textSize="12dp" />
 
             <TextView
                 android:layout_width="wrap_content"
