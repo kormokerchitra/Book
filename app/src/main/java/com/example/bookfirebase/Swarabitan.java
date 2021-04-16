@@ -59,7 +59,7 @@ public class Swarabitan extends AppCompatActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                new ReadJSONSwarobitanList().execute("http://192.168.100.5/bookTest/song_list.php");
+                new ReadJSONSwarobitanList().execute(IpConfig.ip + "bookTest/song_list.php");
             }
         });
     }

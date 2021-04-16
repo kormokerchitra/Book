@@ -82,7 +82,7 @@ public class BookDetails extends AppCompatActivity {
         rating_layout = (LinearLayout) findViewById(R.id.rating_layout);
         signin_layout = (LinearLayout) findViewById(R.id.signin_layout);
 
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, "http://192.168.100.5/bookTest/book_finder.php",
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, IpConfig.ip + "bookTest/book_finder.php",
                 new Response.Listener<String>() {
 
                     @Override
@@ -153,7 +153,7 @@ public class BookDetails extends AppCompatActivity {
                     Toast.makeText(BookDetails.this, "Password field is empty!", Toast.LENGTH_SHORT).show();
                 } else {
 
-                    StringRequest stringRequest = new StringRequest(Request.Method.POST, "http://192.168.100.5/bookTest/login.php",
+                    StringRequest stringRequest = new StringRequest(Request.Method.POST, IpConfig.ip + "bookTest/login.php",
                             new Response.Listener<String>() {
 
                                 @Override
@@ -177,7 +177,7 @@ public class BookDetails extends AppCompatActivity {
                                         signin_layout.setVisibility(View.GONE);
                                         rating_layout.setVisibility(View.VISIBLE);
 
-                                        StringRequest stringRequest = new StringRequest(Request.Method.POST, "http://192.168.100.5/bookTest/profile.php",
+                                        StringRequest stringRequest = new StringRequest(Request.Method.POST, IpConfig.ip + "bookTest/profile.php",
                                                 new Response.Listener<String>() {
 
                                                     @Override
@@ -289,7 +289,7 @@ public class BookDetails extends AppCompatActivity {
                 person++;
                 String pp = String.valueOf(person);
                 rating_total = ratig1 + rating_total;
-                double avg = rating_total/person;
+                double avg = rating_total / person;
                 String average = String.valueOf(avg);
 
                 InputStream is = null;
@@ -304,7 +304,7 @@ public class BookDetails extends AppCompatActivity {
 
                 try {
                     HttpClient httpClient = new DefaultHttpClient();
-                    HttpPost httpPost = new HttpPost("http://192.168.100.5/bookTest/give_review.php");
+                    HttpPost httpPost = new HttpPost(IpConfig.ip + "bookTest/give_review.php");
                     //httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
                     httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
                     HttpResponse response = httpClient.execute(httpPost);
@@ -364,7 +364,7 @@ public class BookDetails extends AppCompatActivity {
             //We will start the Profile Activity
             signin_layout.setVisibility(View.GONE);
             rating_layout.setVisibility(View.VISIBLE);
-            StringRequest stringRequest = new StringRequest(Request.Method.POST, "http://192.168.100.5/bookTest/profile.php",
+            StringRequest stringRequest = new StringRequest(Request.Method.POST, IpConfig.ip + "bookTest/profile.php",
                     new Response.Listener<String>() {
 
                         @Override

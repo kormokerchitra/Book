@@ -118,9 +118,9 @@ public class MainActivity extends AppCompatActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                new ReadJSON().execute("http://192.168.100.5/bookTest/category_list.php");
-                new ReadJSONGeetobitanList().execute("http://192.168.100.5/bookTest/song_list.php");
-                new ReadJSONSwarabitanList().execute("http://192.168.100.5/bookTest/song_list.php");
+                new ReadJSON().execute(IpConfig.ip + "bookTest/category_list.php");
+                new ReadJSONGeetobitanList().execute(IpConfig.ip + "bookTest/song_list.php");
+                new ReadJSONSwarabitanList().execute(IpConfig.ip + "bookTest/song_list.php");
             }
         });
 
@@ -202,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
 
                 final String email_user = sharedPreferences.getString("loggedin_data", "");
 
-                StringRequest stringRequest = new StringRequest(Request.Method.POST, "http://192.168.100.5/bookTest/profile.php",
+                StringRequest stringRequest = new StringRequest(Request.Method.POST, IpConfig.ip + "bookTest/profile.php",
                         new Response.Listener<String>() {
 
                             @Override
@@ -342,7 +342,7 @@ public class MainActivity extends AppCompatActivity {
 
                 try {
                     HttpClient httpClient = new DefaultHttpClient();
-                    HttpPost httpPost = new HttpPost("http://192.168.100.5/bookTest/profile_edit.php");
+                    HttpPost httpPost = new HttpPost(IpConfig.ip + "bookTest/profile_edit.php");
                     //httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
                     httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
                     HttpResponse response = httpClient.execute(httpPost);
@@ -380,7 +380,7 @@ public class MainActivity extends AppCompatActivity {
 
                     try {
                         HttpClient httpClient = new DefaultHttpClient();
-                        HttpPost httpPost = new HttpPost("http://192.168.100.5/bookTest/pass_change.php");
+                        HttpPost httpPost = new HttpPost(IpConfig.ip + "bookTest/pass_change.php");
                         //httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
                         httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
                         HttpResponse response = httpClient.execute(httpPost);
@@ -463,10 +463,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+
         TextView submit = (TextView) findViewById(R.id.submit_user);
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                //Sign up
+
                 if (username.getVisibility() == View.VISIBLE) {
                     String un = username.getText().toString();
                     String fn = fullname.getText().toString();
@@ -496,7 +501,7 @@ public class MainActivity extends AppCompatActivity {
 
                         try {
                             HttpClient httpClient = new DefaultHttpClient();
-                            HttpPost httpPost = new HttpPost("http://192.168.100.5/bookTest/sign_up.php");
+                            HttpPost httpPost = new HttpPost(IpConfig.ip + "bookTest/sign_up.php");
                             //httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
                             httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
                             HttpResponse response = httpClient.execute(httpPost);
@@ -514,6 +519,9 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 } else {
+
+                    //Sign in
+
                     final String em = email.getText().toString();
                     final String pass = password.getText().toString();
                     if (em.equals("")) {
@@ -521,7 +529,7 @@ public class MainActivity extends AppCompatActivity {
                     } else if (pass.equals("")) {
                         Toast.makeText(MainActivity.this, "Password field is blank!", Toast.LENGTH_SHORT).show();
                     } else {
-                        StringRequest stringRequest = new StringRequest(Request.Method.POST, "http://192.168.100.5/bookTest/login.php",
+                        StringRequest stringRequest = new StringRequest(Request.Method.POST, IpConfig.ip + "bookTest/login.php",
                                 new Response.Listener<String>() {
 
                                     @Override

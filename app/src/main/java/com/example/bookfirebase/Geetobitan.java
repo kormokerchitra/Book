@@ -59,7 +59,7 @@ public class Geetobitan extends AppCompatActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                new ReadJSONGeetobitanList().execute("http://192.168.100.5/bookTest/song_list.php");
+                new ReadJSONGeetobitanList().execute(IpConfig.ip + "bookTest/song_list.php");
             }
         });
     }
@@ -178,7 +178,7 @@ public class Geetobitan extends AppCompatActivity {
     }
 }
 
- class FileDownloaderGeetobitan {
+class FileDownloaderGeetobitan {
     private static final int MEGABYTE = 1024 * 1024;
 
     public static void downloadFile(String fileUrl, File directory) {
